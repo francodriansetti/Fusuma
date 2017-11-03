@@ -70,7 +70,7 @@ final class FSVideoCameraView: UIView {
             session.addInput(videoInput!)
             
             videoOutput = AVCaptureMovieFileOutput()
-            let totalSeconds = 60.0 //Total Seconds of capture time
+            let totalSeconds = 10.0//Total Seconds of capture time - changed
             let timeScale: Int32 = 30 //FPS
             
             let maxDuration = CMTimeMakeWithSeconds(totalSeconds, timeScale)
@@ -78,16 +78,22 @@ final class FSVideoCameraView: UIView {
             videoOutput?.maxRecordedDuration = maxDuration
             videoOutput?.minFreeDiskSpaceLimit = 1024 * 1024 //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
             
-            if session.canAddOutput(videoOutput!) {
+            if session.canAddOutput(videoOutput) {
                 
-                session.addOutput(videoOutput!)
+                session.addOutput(videoOutput)
+            }
+            
+            if session.canSetSessionPreset(AVCaptureSessionPreset640x480) { // - added
+                session.sessionPreset = AVCaptureSessionPreset640x480
             }
             
             let videoLayer = AVCaptureVideoPreviewLayer(session: session)
-            videoLayer.frame = self.previewViewContainer.bounds
-            videoLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+            videoLayer?.frame = self.previewViewContainer.bounds
+            videoLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
             
-            self.previewViewContainer.layer.addSublayer(videoLayer)
+            videoLayer?.connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationMode.auto // TODO: added
+            
+            self.previewViewContainer.layer.addSublayer(videoLayer!)
             
             session.startRunning()
             
