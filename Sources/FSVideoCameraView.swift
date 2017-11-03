@@ -14,7 +14,7 @@ import AVFoundation
 }
 
 final class FSVideoCameraView: UIView {
-
+    
     @IBOutlet weak var previewViewContainer: UIView!
     @IBOutlet weak var shotButton: UIButton!
     @IBOutlet weak var flashButton: UIButton!
@@ -32,7 +32,7 @@ final class FSVideoCameraView: UIView {
     var flashOnImage: UIImage?
     var videoStartImage: UIImage?
     var videoStopImage: UIImage?
-
+    
     
     fileprivate var isRecording = false
     
@@ -70,7 +70,7 @@ final class FSVideoCameraView: UIView {
             session.addInput(videoInput)
             
             videoOutput = AVCaptureMovieFileOutput()
-            let totalSeconds = 60.0 //Total Seconds of capture time
+            let totalSeconds = 10.0//Total Seconds of capture time - changed
             let timeScale: Int32 = 30 //FPS
             
             let maxDuration = CMTimeMakeWithSeconds(totalSeconds, timeScale)
@@ -83,9 +83,15 @@ final class FSVideoCameraView: UIView {
                 session.addOutput(videoOutput)
             }
             
+            if session.canSetSessionPreset(AVCaptureSessionPreset640x480) { // - added
+                session.sessionPreset = AVCaptureSessionPreset640x480
+            }
+            
             let videoLayer = AVCaptureVideoPreviewLayer(session: session)
             videoLayer?.frame = self.previewViewContainer.bounds
             videoLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
+            
+            videoLayer?.connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationMode.auto // TODO: added
             
             self.previewViewContainer.layer.addSublayer(videoLayer!)
             
@@ -344,9 +350,9 @@ fileprivate extension FSVideoCameraView {
                 
                 focusView.alpha = 1.0
                 focusView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
-        
+                
         }, completion: {(finished) in
-        
+            
             focusView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             focusView.removeFromSuperview()
         })
@@ -371,3 +377,4 @@ fileprivate extension FSVideoCameraView {
         }
     }
 }
+
